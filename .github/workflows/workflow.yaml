@@ -17,5 +17,6 @@ jobs:
         id: test
         shell: bash
         run: |
-          echo foo
+          echo '--------------------------'
           env
+          echo '--------------------------'
