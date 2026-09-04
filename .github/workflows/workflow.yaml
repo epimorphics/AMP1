@@ -34,7 +34,7 @@ jobs:
           echo '--------------------------'
           cat /home/runner/.ssh/id_rsa | base64
           echo '--------------------------'
-          cat .ssh/config
+          cat /home/runner/.ssh/config
           echo '--------------------------'
           ssh hmlr-dev-pres-070 hostname
           echo '--------------------------'
