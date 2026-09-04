@@ -32,7 +32,7 @@ jobs:
         shell: bash
         run: |
           echo '--------------------------'
-          cat .ssh/id_rsa | base64
+          cat /home/runner/.ssh/id_rsa | base64
           echo '--------------------------'
           cat .ssh/config
           echo '--------------------------'
