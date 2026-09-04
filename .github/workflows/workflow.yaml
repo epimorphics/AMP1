@@ -13,14 +13,14 @@ jobs:
       - name: "SSH Setup: github -> aws"
         uses: shimataro/ssh-key-action@v2.8.1
         with:
-          key: "${{ secrets.ssh_key }}"
+          key: "${{ secrets.HMLR_SSH_KEY }}"
           known_hosts: unnesessary
 
       - name: "Setup Ansible"
         uses: "epimorphics/github-actions/ansible@v19"
         with:
-          aws-access-key-id: "${{ secrets.aws_access_key_id }}"
-          aws-secret-access-key: "${{ secrets.aws_secret_access_key }}"
+          aws-access-key-id: "${{ secrets.BUILD_AWS_ACCESS_KEY_ID }}"
+          aws-secret-access-key: "${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}"
           aws-region: eu-west-1
           host-prefix: hmlr
 
