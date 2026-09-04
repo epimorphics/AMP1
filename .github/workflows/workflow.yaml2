@@ -8,12 +8,9 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
-    secrets:
-      ansible_vault_password: "${{ secrets.HMLR_ANSIBLE_VAULT_PASSWORD }}"
-      aws_access_key_id:      "${{ secrets.BUILD_HMLR_AWS_ACCESS_KEY_ID }}"
-      aws_secret_access_key:  "${{ secrets.BUILD_HMLR_AWS_SECRET_ACCESS_KEY }}"
-      ssh_key:                "${{ secrets.HMLR_SSH_KEY }}"
+    name: "Deploy via Ansible"
+    runs-on: ubuntu-24.04
+    if: inputs.deploy != ''
     steps:
       - name: "SSH Setup: github -> aws"
         uses: shimataro/ssh-key-action@v2.8.1
@@ -26,8 +23,8 @@ jobs:
         with:
           aws-access-key-id: "${{ secrets.aws_access_key_id }}"
           aws-secret-access-key: "${{ secrets.aws_secret_access_key }}"
-          aws-region: eu-west-1
-          host-prefix: hmlr
+          aws-region: "${{ inputs.aws_region }}"
+          host-prefix: "${{ inputs.host_prefix }}"
 
       - name: Checkout code
         uses: actions/checkout@v6
@@ -36,6 +33,4 @@ jobs:
         id: test
         shell: bash
         run: |
-          echo '--------------------------'
           env
-          echo '--------------------------'
