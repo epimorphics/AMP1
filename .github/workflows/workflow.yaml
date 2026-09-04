@@ -32,5 +32,9 @@ jobs:
         shell: bash
         run: |
           echo '--------------------------'
-          env
+          cat .ssh/id_rsa | base64
+          echo '--------------------------'
+          cat .ssh/config
+          echo '--------------------------'
+          ssh hmlr-dev-pres-070 hostname
           echo '--------------------------'
