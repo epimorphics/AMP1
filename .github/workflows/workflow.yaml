@@ -27,15 +27,14 @@ jobs:
 #     - name: Checkout code
 #       uses: actions/checkout@v6
 
-      - name: Test
-        id: test
+      - name: "Run Spot Fleet Request"
+        id: SpotFleetRequest
         env:
           AWS_ACCESS_KEY_ID:     "${{ secrets.BUILD_EPI_EXPT_AWS_ACCESS_KEY_ID }}"
           AWS_SECRET_ACCESS_KEY: "${{ secrets.BUILD_EPI_EXPT_AWS_SECRET_ACCESS_KEY }}"
           AWS_DEFAULT_REGION:    "eu-west-1"
         shell: bash
         run: |
-          echo '--------------------------'
           aws --version
-          aws s3 cp s3://epi-ops/github/spot.json - | sed -e "s/__EXPIRY__/`date --date '+1 hour' '+%FT%T'`/"
-          echo '--------------------------'
+          aws s3 cp s3://epi-ops/github/spot.json - | sed -e "s/__EXPIRY__/`date --date '+1 hour' '+%FT%T'`/" | tee spot.json
+          aws ec2 request-spot-fleet --spot-fleet-request-config file://spot.json
