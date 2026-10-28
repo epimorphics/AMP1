@@ -1,4 +1,4 @@
-name: Test Workflow
+name: AWS Hosted Workflow
 on:
   push:
     branches: [ main ]
@@ -7,7 +7,7 @@ on:
   workflow_dispatch: {}
 
 jobs:
-  test:
+  HostedAction:
     runs-on: ubuntu-latest
     steps:
 #     - name: "SSH Setup: github -> aws"
