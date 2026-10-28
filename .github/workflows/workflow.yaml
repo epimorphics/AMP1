@@ -29,8 +29,13 @@ jobs:
 
       - name: Test
         id: test
+        env:
+          AWS_ACCESS_KEY_ID:     "${{ secrets.BUILD_AWS_ACCESS_KEY_ID }}"
+          AWS_SECRET_ACCESS_KEY: "${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}"
+          AWS_DEFAULT_REGION:    "eu-west-1"
         shell: bash
         run: |
           echo '--------------------------'
           aws --version
+          aws s3 cp s3://epi-ops/github/spot.json - | sed -e "s/__EXPIRY__/`date --date '+1 hour' '+%FT%T'`/"
           echo '--------------------------'
