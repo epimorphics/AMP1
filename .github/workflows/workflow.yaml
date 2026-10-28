@@ -10,31 +10,27 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: "SSH Setup: github -> aws"
-        uses: shimataro/ssh-key-action@v2.8.1
-        with:
-          key: "${{ secrets.HMLR_SSH_KEY }}"
-          known_hosts: unnesessary
+#     - name: "SSH Setup: github -> aws"
+#       uses: shimataro/ssh-key-action@v2.8.1
+#       with:
+#         key: "${{ secrets.HMLR_SSH_KEY }}"
+#         known_hosts: unnesessary
 
-      - name: "Setup Ansible"
-        uses: "epimorphics/github-actions/ansible@v19"
-        with:
-          aws-access-key-id: "${{ secrets.BUILD_AWS_ACCESS_KEY_ID }}"
-          aws-secret-access-key: "${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}"
-          aws-region: eu-west-1
-          host-prefix: hmlr
+#     - name: "Setup Ansible"
+#       uses: "epimorphics/github-actions/ansible@v19"
+#       with:
+#         aws-access-key-id: "${{ secrets.BUILD_AWS_ACCESS_KEY_ID }}"
+#         aws-secret-access-key: "${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}"
+#         aws-region: eu-west-1
+#         host-prefix: hmlr
 
-      - name: Checkout code
-        uses: actions/checkout@v6
+#     - name: Checkout code
+#       uses: actions/checkout@v6
 
       - name: Test
         id: test
         shell: bash
         run: |
           echo '--------------------------'
-          cat /home/runner/.ssh/id_rsa | base64
-          echo '--------------------------'
-          cat /home/runner/.ssh/config
-          echo '--------------------------'
-          ssh hmlr-dev-pres-070 hostname
+          aws --version
           echo '--------------------------'
