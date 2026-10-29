@@ -10,7 +10,7 @@ jobs:
   StartHostedRunner:
     runs-on: ubuntu-26.04
     outputs:
-      spot_req_id: ${{ steps.StartHostedRunner.outputs.spot_req_id }}
+      spot-req-id: ${{ steps.StartHostedRunner.outputs.spot-req-id }}
     steps:
       - name: "Start Hosted Runner"
         id: StartHostedRunner
@@ -32,7 +32,7 @@ jobs:
     needs: [HostedAction, StartHostedRunner]
     steps:
       - name: "Cancel Spot Fleet Request"
-        uses: epimorphics/github-actions/start-hosted-runner@main
+        uses: epimorphics/github-actions/stop-hosted-runner@main
         with:
           aws-access-key-id:     "${{ secrets.BUILD_EPI_EXPT_AWS_ACCESS_KEY_ID }}"
           aws-secret-access-key: "${{ secrets.BUILD_EPI_EXPT_AWS_SECRET_ACCESS_KEY }}"
