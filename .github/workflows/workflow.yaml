@@ -26,7 +26,7 @@ jobs:
         id: HostedAction
         shell: bash
         run: |
-          echo "Spot Fleet Request: ${{ needs.StartHostedRunner.outputs.spot_req_id }}"
+          echo "Spot Fleet Request: ${{ needs.StartHostedRunner.outputs.spot-req-id }}"
   StopHostedRunner:
     runs-on: ubuntu-26.04
     needs: [HostedAction, StartHostedRunner]
@@ -36,4 +36,4 @@ jobs:
         with:
           aws-access-key-id:     "${{ secrets.BUILD_EPI_EXPT_AWS_ACCESS_KEY_ID }}"
           aws-secret-access-key: "${{ secrets.BUILD_EPI_EXPT_AWS_SECRET_ACCESS_KEY }}"
-          spot_req_id:           "${{ needs.StartHostedRunner.outputs.spot_req_id }}"
+          spot_req_id:           "${{ needs.StartHostedRunner.outputs.spot-req-id }}"
