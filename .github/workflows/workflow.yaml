@@ -20,6 +20,7 @@ jobs:
         run: |
           aws s3 cp s3://epi-ops/github/spot.json - | sed -e "s/__EXPIRY__/`date --date '+1 hour' '+%FT%T'`/" | tee spot.json
           aws ec2 request-spot-fleet --spot-fleet-request-config file://spot.json
+          sleep 300
   HostedAction:
     runs-on: self-hosted
     steps:
