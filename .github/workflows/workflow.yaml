@@ -45,4 +45,9 @@ jobs:
           AWS_DEFAULT_REGION:    "eu-west-1"
         shell: bash
         run: |
-          [ -n "${{ needs.StartRemoteRunner.outputs.spot_req_id }}" ] && aws ec2 cancel-spot-fleet-requests --spot-fleet-request-ids ${{ needs.StartRemoteRunner.outputs.spot_req_id }} --terminate-instances || echo "No Spot Fleet Request to cancel"
+          if [ -n "${{ needs.StartRemoteRunner.outputs.spot_req_id }}" ]
+          then
+            aws ec2 cancel-spot-fleet-requests --spot-fleet-request-ids ${{ needs.StartRemoteRunner.outputs.spot_req_id }} --terminate-instances
+          else
+            echo "No Spot Fleet Request to cancel"
+          fi
