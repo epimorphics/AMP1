@@ -36,4 +36,4 @@ jobs:
         with:
           aws-access-key-id:     "${{ secrets.BUILD_EPI_EXPT_AWS_ACCESS_KEY_ID }}"
           aws-secret-access-key: "${{ secrets.BUILD_EPI_EXPT_AWS_SECRET_ACCESS_KEY }}"
-          spot_req_id:           "${{ needs.StartHostedRunner.outputs.spot-req-id }}"
+          spot-req-id:           "${{ needs.StartHostedRunner.outputs.spot-req-id }}"
