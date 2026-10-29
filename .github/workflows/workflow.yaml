@@ -7,47 +7,33 @@ on:
   workflow_dispatch: {}
 
 jobs:
-  StartRemoteRunner:
-    runs-on: ubuntu-latest
+  StartHostedRunner:
+    runs-on: ubuntu-26.04
     outputs:
-      spot_req_id: ${{ steps.SpotFleetRequest.outputs.spot_req_id }}
+      spot_req_id: ${{ steps.StartHostedRunner.outputs.spot_req_id }}
     steps:
-      - name: "Run Spot Fleet Request"
-        id: SpotFleetRequest
-        env:
-          AWS_ACCESS_KEY_ID:     "${{ secrets.BUILD_EPI_EXPT_AWS_ACCESS_KEY_ID }}"
-          AWS_SECRET_ACCESS_KEY: "${{ secrets.BUILD_EPI_EXPT_AWS_SECRET_ACCESS_KEY }}"
-          AWS_DEFAULT_REGION:    "eu-west-1"
-        shell: bash
-        run: |
-          aws s3 cp s3://epi-ops/github/spot.json - | sed -e "s/__EXPIRY__/`date --date '+1 hour' '+%FT%T'`/" | tee spot.json
-          SPOT_REQ_ID=$(aws ec2 request-spot-fleet --spot-fleet-request-config file://spot.json | jq -r .SpotFleetRequestId)
-          echo "spot_req_id=$SPOT_REQ_ID" >> $GITHUB_OUTPUT
-          sleep 90
+      - name: "Start Hosted Runner"
+        id: StartHostedRunner
+        uses: epimorphics/github-actions/start-hosted-runner@main
+        with:
+          aws-access-key-id:     "${{ secrets.BUILD_EPI_EXPT_AWS_ACCESS_KEY_ID }}"
+          aws-secret-access-key: "${{ secrets.BUILD_EPI_EXPT_AWS_SECRET_ACCESS_KEY }}"
   HostedAction:
     runs-on: self-hosted
-    needs: StartRemoteRunner
+    needs: StartHostedRunner
     steps:
       - name: "Self Hosted Action"
         id: HostedAction
         shell: bash
         run: |
-          echo "Spot Fleet Request: ${{ needs.StartRemoteRunner.outputs.spot_req_id }}"
-  StopRemoteRunner:
-    runs-on: ubuntu-latest
-    needs: [HostedAction, StartRemoteRunner]
+          echo "Spot Fleet Request: ${{ needs.StartHostedRunner.outputs.spot_req_id }}"
+  StopHostedRunner:
+    runs-on: ubuntu-26.04
+    needs: [HostedAction, StartHostedRunner]
     steps:
       - name: "Cancel Spot Fleet Request"
-        id: CancelSpotFleetRequest
-        env:
-          AWS_ACCESS_KEY_ID:     "${{ secrets.BUILD_EPI_EXPT_AWS_ACCESS_KEY_ID }}"
-          AWS_SECRET_ACCESS_KEY: "${{ secrets.BUILD_EPI_EXPT_AWS_SECRET_ACCESS_KEY }}"
-          AWS_DEFAULT_REGION:    "eu-west-1"
-        shell: bash
-        run: |
-          if [ -n "${{ needs.StartRemoteRunner.outputs.spot_req_id }}" ]
-          then
-            aws ec2 cancel-spot-fleet-requests --spot-fleet-request-ids ${{ needs.StartRemoteRunner.outputs.spot_req_id }} --terminate-instances
-          else
-            echo "No Spot Fleet Request to cancel"
-          fi
+        uses: epimorphics/github-actions/start-hosted-runner@main
+        with:
+          aws-access-key-id:     "${{ secrets.BUILD_EPI_EXPT_AWS_ACCESS_KEY_ID }}"
+          aws-secret-access-key: "${{ secrets.BUILD_EPI_EXPT_AWS_SECRET_ACCESS_KEY }}"
+          spot_req_id:           "${{ needs.StartHostedRunner.outputs.spot_req_id }}"
