@@ -7,26 +7,9 @@ on:
   workflow_dispatch: {}
 
 jobs:
-  HostedAction:
+  StartRemoteRunner:
     runs-on: ubuntu-latest
     steps:
-#     - name: "SSH Setup: github -> aws"
-#       uses: shimataro/ssh-key-action@v2.8.1
-#       with:
-#         key: "${{ secrets.HMLR_SSH_KEY }}"
-#         known_hosts: unnesessary
-
-#     - name: "Setup Ansible"
-#       uses: "epimorphics/github-actions/ansible@v19"
-#       with:
-#         aws-access-key-id: "${{ secrets.BUILD_AWS_ACCESS_KEY_ID }}"
-#         aws-secret-access-key: "${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}"
-#         aws-region: eu-west-1
-#         host-prefix: hmlr
-
-#     - name: Checkout code
-#       uses: actions/checkout@v6
-
       - name: "Run Spot Fleet Request"
         id: SpotFleetRequest
         env:
@@ -35,6 +18,13 @@ jobs:
           AWS_DEFAULT_REGION:    "eu-west-1"
         shell: bash
         run: |
-          aws --version
           aws s3 cp s3://epi-ops/github/spot.json - | sed -e "s/__EXPIRY__/`date --date '+1 hour' '+%FT%T'`/" | tee spot.json
           aws ec2 request-spot-fleet --spot-fleet-request-config file://spot.json
+  HostedAction:
+    runs-on: self-hosted
+    steps:
+      - name: "Self Hosted Action"
+        id: HostedAction
+        shell: bash
+        run: |
+          echo here
