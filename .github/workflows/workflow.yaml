@@ -23,6 +23,7 @@ jobs:
           sleep 300
   HostedAction:
     runs-on: self-hosted
+    needs: StartRemoteRunner
     steps:
       - name: "Self Hosted Action"
         id: HostedAction
