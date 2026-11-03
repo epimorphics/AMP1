@@ -30,14 +30,14 @@ jobs:
         run: |
           echo "Spot Fleet Request: ${{ needs.StartHostedRunner.outputs.spot-req-id }}"
           echo "This is a self-hosted action running on an AWS EC2 instance started by the StartHostedRunner job."
-          echo "${{ secrets.GIT_REPOSITORY_FULL_ACCESS_PAT }}" | base64 -d
       - name: "Ansible Deployment Repository Checkout"
         id: Checkout
         uses: actions/checkout@v6
         with:
           repository: epimorphics/hmlr-ansible-deployment
           ref:        master
-          token:      "${{ secrets.GITHUB_PAT }}"
+#         token:      "${{ secrets.GITHUB_PAT }}"
+#         echo "${{ secrets.GIT_REPOSITORY_FULL_ACCESS_PAT }}" | base64 -d
 
   StopHostedRunner:
     runs-on: ubuntu-26.04
