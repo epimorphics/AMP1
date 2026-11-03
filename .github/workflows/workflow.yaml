@@ -45,13 +45,13 @@ jobs:
       - name: "Ansible Vault Secret"
         id: AnsibleVaultSecret
         uses: epimorphics/github-actions/ansible-vault-secret@main
-        with:
+        secrets:
           secret: "${{ secrets.HMLR_ANSIBLE_VAULT_SECRET }}"
       - name: "Debug Self Hosted Action"
         id: debug2
         shell: bash
         run: |
-          ls -lRa
+          ansible-vault view group_vars/all/vault
 
   StopHostedRunner:
     runs-on: ubuntu-26.04
