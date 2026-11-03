@@ -37,11 +37,12 @@ jobs:
           repository: epimorphics/hmlr-ansible-deployment
           ref:        master
 #         token:      "${{ secrets.GITHUB_PAT }}"
-#         echo "${{ secrets.GIT_REPOSITORY_FULL_ACCESS_PAT }}" | base64 -d
+          token:      ${{ secrets.GIT_REPOSITORY_FULL_ACCESS_PAT }}
 
   StopHostedRunner:
     runs-on: ubuntu-26.04
     needs: [HostedAction, StartHostedRunner]
+    if: (always() && needs.StartHostedRunner.outputs.spot-req-id != '')
     steps:
       - name: "Cancel Spot Fleet Request"
         uses: epimorphics/github-actions/stop-hosted-runner@main
