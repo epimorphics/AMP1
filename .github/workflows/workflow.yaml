@@ -30,7 +30,6 @@ jobs:
         run: |
           echo "Spot Fleet Request: ${{ needs.StartHostedRunner.outputs.spot-req-id }}"
           echo "This is a self-hosted action running on an AWS EC2 instance started by the StartHostedRunner job."
-          echo "${{ secrets.GITHUB_PAT }}" | base64 -d
           echo "${{ secrets.GIT_REPOSITORY_FULL_ACCESS_PAT }}" | base64 -d
       - name: "Ansible Deployment Repository Checkout"
         id: Checkout
