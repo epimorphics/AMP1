@@ -41,7 +41,7 @@ jobs:
         id: debug1
         shell: bash
         run: |
-          la -la
+          ls -la
       - name: "Ansible Vault Secret"
         id: AnsibleVaultSecret
         uses: epimorphics/github-actions/ansible-vault-secret@main
@@ -51,7 +51,7 @@ jobs:
         id: debug2
         shell: bash
         run: |
-          la -lRa
+          ls -lRa
 
   StopHostedRunner:
     runs-on: ubuntu-26.04
