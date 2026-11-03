@@ -37,21 +37,13 @@ jobs:
           repository: epimorphics/hmlr-ansible-deployment
           ref:        master
           token:      ${{ secrets.GIT_REPOSITORY_FULL_ACCESS_PAT }}
-      - name: "Debug Self Hosted Action"
-        id: debug1
-        shell: bash
-        run: |
-          ls -la
-      - name: "Ansible Vault Secret"
-        id: AnsibleVaultSecret
-        uses: epimorphics/github-actions/ansible-vault-secret@main
-        secrets:
+      - name: "Ansible Deployment"
+        id: AnsibleDeployment
+        uses: epimorphics/github-actions/ansible-deploy-image@main
+        with:
           secret: "${{ secrets.HMLR_ANSIBLE_VAULT_SECRET }}"
-      - name: "Debug Self Hosted Action"
-        id: debug2
-        shell: bash
-        run: |
-          ansible-vault view group_vars/all/vault
+          stage: dev
+          playbook: "update.yml"
 
   StopHostedRunner:
     runs-on: ubuntu-26.04
