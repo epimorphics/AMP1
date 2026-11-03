@@ -16,8 +16,10 @@ jobs:
         id: StartHostedRunner
         uses: epimorphics/github-actions/start-hosted-runner@main
         with:
-          aws-access-key-id:     "${{ secrets.BUILD_EPI_EXPT_AWS_ACCESS_KEY_ID }}"
-          aws-secret-access-key: "${{ secrets.BUILD_EPI_EXPT_AWS_SECRET_ACCESS_KEY }}"
+          aws-access-key-id:     "${{ secrets.BUILD_HMLR_AWS_ACCESS_KEY_ID }}"
+          aws-secret-access-key: "${{ secrets.BUILD_HMLR_AWS_SECRET_ACCESS_KEY }}"
+          spot-file:             "s3://epimorphics-github-actions/spot-fleet-request.json"
+
   HostedAction:
     runs-on: self-hosted
     needs: StartHostedRunner
@@ -27,6 +29,17 @@ jobs:
         shell: bash
         run: |
           echo "Spot Fleet Request: ${{ needs.StartHostedRunner.outputs.spot-req-id }}"
+          echo "This is a self-hosted action running on an AWS EC2 instance started by the StartHostedRunner job."
+          echo "${{ secrets.GITHUB_PAT }}" | base64 -d
+          echo "${{ secrets.GIT_REPOSITORY_FULL_ACCESS_PAT }}" | base64 -d
+      - name: "Ansible Deployment Repository Checkout"
+        id: Checkout
+        uses: actions/checkout@v6
+        with:
+          repository: epimorphics/hmlr-ansible-deployment
+          ref:        master
+          token:      "${{ secrets.GITHUB_PAT }}"
+
   StopHostedRunner:
     runs-on: ubuntu-26.04
     needs: [HostedAction, StartHostedRunner]
@@ -34,6 +47,6 @@ jobs:
       - name: "Cancel Spot Fleet Request"
         uses: epimorphics/github-actions/stop-hosted-runner@main
         with:
-          aws-access-key-id:     "${{ secrets.BUILD_EPI_EXPT_AWS_ACCESS_KEY_ID }}"
-          aws-secret-access-key: "${{ secrets.BUILD_EPI_EXPT_AWS_SECRET_ACCESS_KEY }}"
+          aws-access-key-id:     "${{ secrets.BUILD_HMLR_AWS_ACCESS_KEY_ID }}"
+          aws-secret-access-key: "${{ secrets.BUILD_HMLR_AWS_SECRET_ACCESS_KEY }}"
           spot-req-id:           "${{ needs.StartHostedRunner.outputs.spot-req-id }}"
