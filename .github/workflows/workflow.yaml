@@ -7,14 +7,6 @@ on:
   workflow_dispatch: {}
 
 jobs:
-  Checkout:
-    runs-on: ubuntu-26.04
-    steps:
-      - name: "Checkout Repository"
-        uses: actions/checkout@v6
-        with:
-          token: ${{ secrets.GITHUB_PAT }}
-
   StartHostedRunner:
     runs-on: ubuntu-26.04
     outputs:
@@ -44,8 +36,22 @@ jobs:
         with:
           repository: epimorphics/hmlr-ansible-deployment
           ref:        master
-#         token:      "${{ secrets.GITHUB_PAT }}"
           token:      ${{ secrets.GIT_REPOSITORY_FULL_ACCESS_PAT }}
+      - name: "Debug Self Hosted Action"
+        id: debug1
+        shell: bash
+        run: |
+          la -la
+      - name: "Ansible Vault Secret"
+        id: AnsibleVaultSecret
+        uses: epimorphics/github-actions/ansible-vault-secret@main
+        with:
+          secret: "${{ secrets.HMLR_ANSIBLE_VAULT_SECRET }}"
+      - name: "Debug Self Hosted Action"
+        id: debug2
+        shell: bash
+        run: |
+          la -lRa
 
   StopHostedRunner:
     runs-on: ubuntu-26.04
