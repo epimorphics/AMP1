@@ -13,7 +13,7 @@ jobs:
     outputs:
       spot-req-id: ${{ steps.StartHostedRunner.outputs.spot-req-id }}
     steps:
-      - name: "Start Hosted Runner"
+      - name: "Start AWS Hosted Runner"
         id: StartHostedRunner
         uses: epimorphics/github-actions/start-hosted-runner@main
         with:
@@ -30,27 +30,40 @@ jobs:
         id: HostedAction
         shell: bash
         run: |
-          echo "Spot Fleet Request: ${{ needs.StartHostedRunner.outputs.spot-req-id }}"
           echo "This is a self-hosted action running on an AWS EC2 instance started by the StartHostedRunner job."
-          echo "secret: ${{ secrets.HMLR_ANSIBLE_VAULT_PASSWORD }}"
+          echo "Spot Fleet Request: ${{ needs.StartHostedRunner.outputs.spot-req-id }}"
 
-      - name: "Ansible Deployment Repository Checkout"
+      - name: "AWS Credentials"
+        id: AWSCredentials
+        uses: epimorphics/github-actions/aws-credentials@main
+        with:
+          aws-access-key-id:     "${{ secrets.BUILD_HMLR_AWS_ACCESS_KEY_ID }}"
+          aws-secret-access-key: "${{ secrets.BUILD_HMLR_AWS_SECRET_ACCESS_KEY }}"
+
+      - name: "Bastion"
+        id: Bastion
+        uses: epimorphics/github-actions/bastion@main
+        with:
+          bastion: "hmlr-bastion"
+
+      - name: "Deployment Repository Checkout"
         id: Checkout
         uses: actions/checkout@v6
         with:
-          repository: epimorphics/hmlr-ansible-deployment
-          ref:        master
-          token:      ${{ secrets.GIT_REPOSITORY_FULL_ACCESS_PAT }}
+          repository: "epimorphics/hmlr-ansible-deployment"
+          ref:        "master"
+          token:      "${{ secrets.GIT_REPOSITORY_FULL_ACCESS_PAT }}"
+
       - name: "Ansible Deployment"
         id: AnsibleDeployment
         uses: epimorphics/github-actions/ansible-deploy-image@main
         with:
           playbook: "update.yml"
-          stage: dev
-          secret: "${{ secrets.HMLR_ANSIBLE_VAULT_PASSWORD }}"
+          stage:    "dev"
+          secret:   "${{ secrets.HMLR_ANSIBLE_VAULT_PASSWORD }}"
 
   StopHostedRunner:
-    name: "Stop Hosted Runner"
+    name: "Stop AWS Hosted Runner"
     runs-on: ubuntu-26.04
     needs: [HostedAction, StartHostedRunner]
     if: (always() && needs.StartHostedRunner.outputs.spot-req-id != '')
