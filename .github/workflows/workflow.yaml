@@ -30,7 +30,7 @@ jobs:
         run: |
           echo "Spot Fleet Request: ${{ needs.StartHostedRunner.outputs.spot-req-id }}"
           echo "This is a self-hosted action running on an AWS EC2 instance started by the StartHostedRunner job."
-          echo "secret: ${{ secrets.HMLR_ANSIBLE_VAULT_SECRET }}"
+          echo "secret: ${{ secrets.HMLR_ANSIBLE_VAULT_PASSWORD }}"
       - name: "Ansible Deployment Repository Checkout"
         id: Checkout
         uses: actions/checkout@v6
@@ -44,7 +44,7 @@ jobs:
         with:
           playbook: "update.yml"
           stage: dev
-          secret: "${{ secrets.HMLR_ANSIBLE_VAULT_SECRET }}"
+          secret: "${{ secrets.HMLR_ANSIBLE_VAULT_PASSWORD }}"
 
   StopHostedRunner:
     runs-on: ubuntu-26.04
