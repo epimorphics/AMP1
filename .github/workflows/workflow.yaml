@@ -19,6 +19,7 @@ jobs:
         with:
           aws-access-key-id:     "${{ secrets.BUILD_HMLR_AWS_ACCESS_KEY_ID }}"
           aws-secret-access-key: "${{ secrets.BUILD_HMLR_AWS_SECRET_ACCESS_KEY }}"
+          runner:                "hmlr-github-runner"
           spot-file:             "s3://epimorphics-github-actions/spot-fleet-request.json"
 
   HostedAction:
@@ -67,7 +68,7 @@ jobs:
     name: "Stop AWS Hosted Runner"
     runs-on: ubuntu-26.04
     needs: [HostedAction, StartHostedRunner]
-    if: (always() && needs.StartHostedRunner.outputs.spot-req-id != '')
+#   if: (always() && needs.StartHostedRunner.outputs.spot-req-id != '')
     steps:
       - name: "Cancel Spot Fleet Request"
         uses: epimorphics/github-actions/stop-hosted-runner@main
