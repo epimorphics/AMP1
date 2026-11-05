@@ -64,15 +64,15 @@ jobs:
           stage:    "dev"
           secret:   "${{ secrets.HMLR_ANSIBLE_VAULT_PASSWORD }}"
 
-  StopHostedRunner:
-    name: "Stop AWS Hosted Runner"
-    runs-on: ubuntu-26.04
-    needs: [HostedAction, StartHostedRunner]
+# StopHostedRunner:
+#   name: "Stop AWS Hosted Runner"
+#   runs-on: ubuntu-26.04
+#   needs: [HostedAction, StartHostedRunner]
 #   if: (always() && needs.StartHostedRunner.outputs.spot-req-id != '')
-    steps:
-      - name: "Cancel Spot Fleet Request"
-        uses: epimorphics/github-actions/stop-hosted-runner@main
-        with:
-          aws-access-key-id:     "${{ secrets.BUILD_HMLR_AWS_ACCESS_KEY_ID }}"
-          aws-secret-access-key: "${{ secrets.BUILD_HMLR_AWS_SECRET_ACCESS_KEY }}"
-          spot-req-id:           "${{ needs.StartHostedRunner.outputs.spot-req-id }}"
+#   steps:
+#     - name: "Cancel Spot Fleet Request"
+#       uses: epimorphics/github-actions/stop-hosted-runner@main
+#       with:
+#         aws-access-key-id:     "${{ secrets.BUILD_HMLR_AWS_ACCESS_KEY_ID }}"
+#         aws-secret-access-key: "${{ secrets.BUILD_HMLR_AWS_SECRET_ACCESS_KEY }}"
+#         spot-req-id:           "${{ needs.StartHostedRunner.outputs.spot-req-id }}"
