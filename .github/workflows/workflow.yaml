@@ -62,33 +62,15 @@ jobs:
           ref:        "master"
           token:      "${{ secrets.GIT_REPOSITORY_FULL_ACCESS_PAT }}"
 
-      - name: "Hosts File"
-        id: Hosts
-        env:
-          AWS_PROFILE: "default"
-        shell: bash
-        run: |
-          ls -l
-          cd ansible
-          mkdir .secret
-          echo "${{ secrets.HMLR_ANSIBLE_VAULT_PASSWORD }}" > .secret/default
-          chmod 600 .secret/default
-          echo "Generating hosts file ..."
-          for host in $(ansible-inventory --list all | jq -r .aws_ec2.hosts.[] | sort -u)
-          do
-            ip=$(ansible-inventory --host $host  | jq -r .private_ip_address);
-            [ -n "$ip" ] && echo $ip $host
-          done | tee /tmp/hosts
-          sudo cat /tmp/hosts >> /etc/hosts
-
       - name: "Ansible Deployment"
         id: AnsibleDeployment
         uses: epimorphics/github-actions/ansible-deploy-image@main
         with:
-          aws-profile: "default"
-          playbook:    "update.yml"
-          stage:       "dev"
-          secret:      "${{ secrets.HMLR_ANSIBLE_VAULT_PASSWORD }}"
+          aws-profile:    "default"
+          generate-hosts: "true"
+          playbook:       "update.yml"
+          stage:          "dev"
+          secret:         "${{ secrets.HMLR_ANSIBLE_VAULT_PASSWORD }}"
 
 # StopHostedRunner:
 #   name: "Stop AWS Hosted Runner"
