@@ -16,11 +16,12 @@ jobs:
       - name: "Start AWS Hosted Runner"
         id: StartHostedRunner
 
-        uses: epimorphics/github-actions/start-hosted-runner@aeecee61ca1a2d1bef351bbaa5aacea2505060bb
+#       uses: epimorphics/github-actions/start-hosted-runner@aeecee61ca1a2d1bef351bbaa5aacea2505060bb
+        uses: epimorphics/github-actions/start-hosted-runner@main
         with:
           aws-access-key-id:     "${{ secrets.BUILD_HMLR_AWS_ACCESS_KEY_ID }}"
           aws-secret-access-key: "${{ secrets.BUILD_HMLR_AWS_SECRET_ACCESS_KEY }}"
-#         aws-asg:               "hmlr-infra-runner"
+          aws-asg:               "hmlr-infra-runner"
           runner:                "hmlr-github-runner"
           spot-file:             "s3://epimorphics-github-actions/spot-fleet-request.json"
 
@@ -35,6 +36,16 @@ jobs:
         run: |
           echo "This is a self-hosted action running on an AWS EC2 instance started by the StartHostedRunner job."
           echo "Spot Fleet Request: ${{ needs.StartHostedRunner.outputs.spot-req-id }}"
+
+      - name: "Ping hosts"
+        id: HostedAction
+        shell: bash
+        run: |
+          for i in 6 28 42
+          do
+            echo "Ping 10.10.10.$i ..."
+            ping -c 2 10.10.10.$i
+          done
 
       - name: "AWS Credentials"
         id: AWSCredentials
@@ -62,9 +73,10 @@ jobs:
         id: AnsibleDeployment
         uses: epimorphics/github-actions/ansible-deploy-image@main
         with:
-          playbook: "update.yml"
-          stage:    "dev"
-          secret:   "${{ secrets.HMLR_ANSIBLE_VAULT_PASSWORD }}"
+          aws-profile: "default"
+          playbook:    "update.yml"
+          stage:       "dev"
+          secret:      "${{ secrets.HMLR_ANSIBLE_VAULT_PASSWORD }}"
 
 # StopHostedRunner:
 #   name: "Stop AWS Hosted Runner"
