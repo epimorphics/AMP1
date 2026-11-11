@@ -17,7 +17,7 @@ jobs:
         id: StartHostedRunner
 
         uses: epimorphics/github-actions/start-hosted-runner@aeecee61ca1a2d1bef351bbaa5aacea2505060bb
-        uses: epimorphics/github-actions/start-hosted-runner@main
+#       uses: epimorphics/github-actions/start-hosted-runner@main
         with:
           aws-access-key-id:     "${{ secrets.BUILD_HMLR_AWS_ACCESS_KEY_ID }}"
           aws-secret-access-key: "${{ secrets.BUILD_HMLR_AWS_SECRET_ACCESS_KEY }}"
