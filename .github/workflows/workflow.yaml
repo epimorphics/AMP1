@@ -38,7 +38,7 @@ jobs:
           echo "Spot Fleet Request: ${{ needs.StartHostedRunner.outputs.spot-req-id }}"
 
       - name: "Ping hosts"
-        id: HostedAction
+        id: PingTests
         shell: bash
         run: |
           for i in 6 28 42
