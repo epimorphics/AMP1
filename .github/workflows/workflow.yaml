@@ -70,6 +70,9 @@ jobs:
         run: |
           ls -l
           cd ansible
+          mkdir .secret
+          echo "${{ secrets.HMLR_ANSIBLE_VAULT_PASSWORD }}" > .secret/default
+          chmod 600 .secret/default
           echo "Generating hosts file ..."
           for host in $(ansible-inventory --list all | jq -r .aws_ec2.hosts.[] | sort -u)
           do
