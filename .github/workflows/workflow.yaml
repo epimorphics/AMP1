@@ -54,20 +54,6 @@ jobs:
           aws-secret-access-key: "${{ secrets.BUILD_HMLR_AWS_SECRET_ACCESS_KEY }}"
           aws-profile:           "default"
 
-      - name: "Hosts File"
-        id: Hosts
-        env:
-          AWS_PROFILE: "default"
-        shell: bash
-        run: |
-          echo "Generating hosts file ..."
-          for host in $(ansible-inventory --list all | jq -r .aws_ec2.hosts.[] | sort -u)
-          do
-            ip=$(ansible-inventory --host $host  | jq -r .private_ip_address);
-            [ -n "$ip" ] && echo $ip $host
-          done >> /etc/hosts
-          cat /etc/hosts
-
       - name: "Deployment Repository Checkout"
         id: Checkout
         uses: actions/checkout@v6
@@ -75,6 +61,22 @@ jobs:
           repository: "epimorphics/hmlr-ansible-deployment"
           ref:        "master"
           token:      "${{ secrets.GIT_REPOSITORY_FULL_ACCESS_PAT }}"
+
+      - name: "Hosts File"
+        id: Hosts
+        env:
+          AWS_PROFILE: "default"
+        shell: bash
+        run: |
+          ls -l
+          cd ansible
+          echo "Generating hosts file ..."
+          for host in $(ansible-inventory --list all | jq -r .aws_ec2.hosts.[] | sort -u)
+          do
+            ip=$(ansible-inventory --host $host  | jq -r .private_ip_address);
+            [ -n "$ip" ] && echo $ip $host
+          done | tee /tmp/hosts
+          sudo cat /tmp/hosts >> /etc/hosts
 
       - name: "Ansible Deployment"
         id: AnsibleDeployment
