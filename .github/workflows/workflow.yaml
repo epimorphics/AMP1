@@ -7,81 +7,94 @@ on:
   workflow_dispatch: {}
 
 jobs:
-  StartHostedRunner:
-    name: "Start Hosted Runner"
-    runs-on: ubuntu-26.04
-    outputs:
-      spot-req-id: ${{ steps.StartHostedRunner.outputs.spot-req-id }}
-    steps:
-      - name: "Start AWS Hosted Runner"
-        id: StartHostedRunner
+  deploy:
+    uses:  "epimorphics/github-workflows/.github/workflows/hosted-deploy.yml@main"
+    with:
+      # Repository specific
+      ansible_playbook: pres.yml
+      ansible_repo:     epimorphics/hmlr-ansible-deployment
+      ansible_repo_ref: master
+      # Fixed
+      aws_asg:    "hmlr-infra-runner"
+      aws_runner: "hmlr-github-runner"
+      deploy: dev
+      key:    landing
+      tag:    2.3.6_f88bba3_00000365
+    secrets:
+      # Repository specific
+      ansible_vault_password: "${{ secrets.HMLR_ANSIBLE_VAULT_PASSWORD }}"
+      aws_access_key_id:      "${{ secrets.BUILD_HMLR_AWS_ACCESS_KEY_ID }}"
+      aws_secret_access_key:  "${{ secrets.BUILD_HMLR_AWS_SECRET_ACCESS_KEY }}"
+      ssh_key:                "${{ secrets.HMLR_SSH_KEY }}"
+      # Fixed
+      github_pat: "${{ secrets.GIT_REPOSITORY_FULL_ACCESS_PAT }}"
 
-        uses: epimorphics/github-actions/start-hosted-runner@main
-        with:
-          aws-access-key-id:     "${{ secrets.BUILD_HMLR_AWS_ACCESS_KEY_ID }}"
-          aws-secret-access-key: "${{ secrets.BUILD_HMLR_AWS_SECRET_ACCESS_KEY }}"
-          aws-asg:               "hmlr-infra-runner"
-          runner:                "hmlr-github-runner"
-          spot-file:             "s3://epimorphics-github-actions/spot-fleet-request.json"
 
-  HostedAction:
-    name: "Hosted Action"
-    runs-on: self-hosted
-    needs: StartHostedRunner
-    steps:
-      - name: "Self Hosted Action"
-        id: HostedAction
-        shell: bash
-        run: |
-          echo "This is a self-hosted action running on an AWS EC2 instance started by the StartHostedRunner job."
-          echo "Spot Fleet Request: ${{ needs.StartHostedRunner.outputs.spot-req-id }}"
-
-      - name: "Ping hosts"
-        id: PingTests
-        shell: bash
-        run: |
-          for i in 6 28 42
-          do
-            echo "Ping 10.10.10.$i ..."
-            ping -c 2 10.10.10.$i
-          done
-
-      - name: "AWS Credentials"
-        id: AWSCredentials
-        uses: epimorphics/github-actions/aws-credentials@main
-        with:
-          aws-access-key-id:     "${{ secrets.BUILD_HMLR_AWS_ACCESS_KEY_ID }}"
-          aws-secret-access-key: "${{ secrets.BUILD_HMLR_AWS_SECRET_ACCESS_KEY }}"
-          aws-profile:           "default"
-
-      - name: "Deployment Repository Checkout"
-        id: Checkout
-        uses: actions/checkout@v6
-        with:
-          repository: "epimorphics/hmlr-ansible-deployment"
-          ref:        "master"
-          token:      "${{ secrets.GIT_REPOSITORY_FULL_ACCESS_PAT }}"
-
-      - name: "Ansible Deployment"
-        id: AnsibleDeployment
-        uses: epimorphics/github-actions/ansible-deploy-image@main
-        with:
-          aws-profile:    "default"
-          generate-hosts: "true"
-          playbook:       "update.yml"
-          stage:          "dev"
-          secret:         "${{ secrets.HMLR_ANSIBLE_VAULT_PASSWORD }}"
-
-# StopHostedRunner:
-#   name: "Stop AWS Hosted Runner"
-#   runs-on: ubuntu-26.04
-#   needs: [HostedAction, StartHostedRunner]
-#   if: (always() && needs.StartHostedRunner.outputs.spot-req-id != '')
-#   steps:
-#     - name: "Cancel Spot Fleet Request"
-#       uses: epimorphics/github-actions/stop-hosted-runner@main
-#       with:
-#         aws-access-key-id:     "${{ secrets.BUILD_HMLR_AWS_ACCESS_KEY_ID }}"
-#         aws-secret-access-key: "${{ secrets.BUILD_HMLR_AWS_SECRET_ACCESS_KEY }}"
-#         aws-asg:               "hmlr-infra-runner"
-#         spot-req-id:           "${{ needs.StartHostedRunner.outputs.spot-req-id }}"
+##  StartHostedRunner:
+##    name: "Start Hosted Runner"
+##    runs-on: ubuntu-26.04
+##    outputs:
+##      spot-req-id: ${{ steps.StartHostedRunner.outputs.spot-req-id }}
+##    steps:
+##      - name: "Start AWS Hosted Runner"
+##        id: StartHostedRunner
+##
+##        uses: epimorphics/github-actions/start-hosted-runner@main
+##        with:
+##          aws-access-key-id:     "${{ secrets.BUILD_HMLR_AWS_ACCESS_KEY_ID }}"
+##          aws-secret-access-key: "${{ secrets.BUILD_HMLR_AWS_SECRET_ACCESS_KEY }}"
+##          aws-asg:               "hmlr-infra-runner"
+##          runner:                "hmlr-github-runner"
+##          spot-file:             "s3://epimorphics-github-actions/spot-fleet-request.json"
+##
+##  HostedAction:
+##    name: "Hosted Action"
+##    runs-on: self-hosted
+##    needs: StartHostedRunner
+##    steps:
+##      - name: "Self Hosted Action"
+##        id: HostedAction
+##        shell: bash
+##        run: |
+##          echo "This is a self-hosted action running on an AWS EC2 instance started by the StartHostedRunner job."
+##          echo "Spot Fleet Request: ${{ needs.StartHostedRunner.outputs.spot-req-id }}"
+##
+##      - name: "AWS Credentials"
+##        id: AWSCredentials
+##        uses: epimorphics/github-actions/aws-credentials@main
+##        with:
+##          aws-access-key-id:     "${{ secrets.BUILD_HMLR_AWS_ACCESS_KEY_ID }}"
+##          aws-secret-access-key: "${{ secrets.BUILD_HMLR_AWS_SECRET_ACCESS_KEY }}"
+##          aws-profile:           "default"
+##
+##      - name: "Deployment Repository Checkout"
+##        id: Checkout
+##        uses: actions/checkout@v6
+##        with:
+##          repository: "epimorphics/hmlr-ansible-deployment"
+##          ref:        "master"
+##          token:      "${{ secrets.GIT_REPOSITORY_FULL_ACCESS_PAT }}"
+##
+##      - name: "Ansible Deployment"
+##        id: AnsibleDeployment
+##        uses: epimorphics/github-actions/ansible-deploy-image@main
+##        with:
+##          aws-profile:    "default"
+##          generate-hosts: "true"
+##          playbook:       "update.yml"
+##          stage:          "dev"
+##          secret:         "${{ secrets.HMLR_ANSIBLE_VAULT_PASSWORD }}"
+##
+### StopHostedRunner:
+###   name: "Stop AWS Hosted Runner"
+###   runs-on: ubuntu-26.04
+###   needs: [HostedAction, StartHostedRunner]
+###   if: (always() && needs.StartHostedRunner.outputs.spot-req-id != '')
+###   steps:
+###     - name: "Cancel Spot Fleet Request"
+###       uses: epimorphics/github-actions/stop-hosted-runner@main
+###       with:
+###         aws-access-key-id:     "${{ secrets.BUILD_HMLR_AWS_ACCESS_KEY_ID }}"
+###         aws-secret-access-key: "${{ secrets.BUILD_HMLR_AWS_SECRET_ACCESS_KEY }}"
+###         aws-asg:               "hmlr-infra-runner"
+###         spot-req-id:           "${{ needs.StartHostedRunner.outputs.spot-req-id }}"
