@@ -8,6 +8,7 @@ on:
 
 jobs:
   deploy:
+    name: "Deploy via AWS Hosted Runner"
     uses:  "epimorphics/github-workflows/.github/workflows/hosted-deploy.yml@main"
     with:
       # Repository specific
